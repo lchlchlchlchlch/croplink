@@ -16,7 +16,7 @@ const LogoutButton = () => {
     });
   };
   return (
-    <Button onClick={logout} className="w-fit">
+    <Button onClick={logout}>
       Logout
       <LogOutIcon />
     </Button>

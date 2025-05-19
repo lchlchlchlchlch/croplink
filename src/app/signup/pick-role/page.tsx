@@ -10,7 +10,7 @@ export default async function PickRole() {
     throw redirect("/");
   }
   if (session?.user.role !== "user") {
-    throw redirect(`${session.user.role}`);
+    throw redirect(`/${session.user.role}`);
   }
 
   return (
