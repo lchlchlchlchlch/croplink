@@ -17,7 +17,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
-import Google from "./google-icon";
+import Google from "@/components/google-icon";
 
 const formSchema = z.object({
   email: z.string().email({
