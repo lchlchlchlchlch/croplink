@@ -5,7 +5,26 @@ import { ac, admin, farmer, buyer, user } from "@/lib/permissions";
 import { admin as adminPlugin } from "better-auth/plugins";
 
 export const auth = betterAuth({
-  trustedOrigins: [process.env.BETTER_AUTH_URl || "localhost:3000"],
+  trustedOrigins: async (request: Request): Promise<string[]> => {
+    const origin = request.headers.get("origin") || "";
+
+    const staticOrigins = [
+      "https://croplink.parthiv.dev",
+      "https://tsa-software-dev-2025-prod.vercel.app",
+    ];
+
+    const localhostRegex = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
+    const vercelPreviewRegex =
+      /^https:\/\/(?:tsa-software-dev-2025)-.*\.vercel\.app$/;
+
+    const dynamicOrigins: string[] = [];
+
+    if (localhostRegex.test(origin) || vercelPreviewRegex.test(origin)) {
+      dynamicOrigins.push(origin);
+    }
+
+    return [...staticOrigins, ...dynamicOrigins];
+  },
   database: drizzleAdapter(db, {
     provider: "pg", // or "mysql", "sqlite"
   }),
