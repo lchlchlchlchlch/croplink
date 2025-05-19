@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/get-session`,
-    {
-      method: "GET",
-      headers: {
-        Cookie: request.headers.get("cookie") || "", // Forward the cookies from the request
-      },
+  const baseUrl = `${request.nextUrl.protocol}//${request.nextUrl.host}`;
+
+  const res = await fetch(`${baseUrl}/api/auth/get-session`, {
+    method: "GET",
+    headers: {
+      Cookie: request.headers.get("cookie") || "", // Forward the cookies from the request
     },
-  );
+  });
 
   const session = await res.json();
 
