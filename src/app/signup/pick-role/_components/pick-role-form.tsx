@@ -52,7 +52,7 @@ const PickRoleForm = ({ userId }: { userId: string }) => {
 
   return (
     <main className="flex flex-col gap-[32px] row-start-2 items-center w-full max-w-md">
-      <WheatIcon size={70} className="text-emerald-600" />
+      <WheatIcon size={70} className="text-primary" />
 
       <Tabs
         className="w-full"
