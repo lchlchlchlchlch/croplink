@@ -1,4 +1,12 @@
-import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  timestamp,
+  boolean,
+  integer,
+  decimal,
+  uuid,
+} from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -63,4 +71,39 @@ export const verification = pgTable("verification", {
   updatedAt: timestamp("updated_at").$defaultFn(
     () => /* @__PURE__ */ new Date(),
   ),
+});
+
+export const crop = pgTable("crop", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull(),
+  amount: integer("amount").notNull().default(0),
+  image: text("image"),
+});
+
+export const request = pgTable("request", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").$defaultFn(
+    () => /* @__PURE__ */ new Date(),
+  ),
+  date: timestamp("date").notNull(),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  approved: boolean("approved").default(false).notNull(),
+});
+
+export const requestItem = pgTable("request_item", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  requestId: uuid("request_id")
+    .notNull()
+    .references(() => request.id, { onDelete: "cascade" }),
+  cropId: uuid("crop_id")
+    .notNull()
+    .references(() => crop.id, { onDelete: "cascade" }),
+  image: text("image"),
+  amount: integer("amount").notNull().default(0),
 });

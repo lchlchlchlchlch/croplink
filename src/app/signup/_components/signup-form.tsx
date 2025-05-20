@@ -1,5 +1,5 @@
 "use client";
-import Google from "@/app/_components/google-icon";
+import Google from "@/components/google-icon";
 import { Button } from "@/components/ui/button";
 import {
   Form,
