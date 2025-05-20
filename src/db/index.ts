@@ -1,5 +1,6 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import * as schema from "./schema";
+import * as relations from "./relations";
 import postgres from "postgres";
 
 let connection: postgres.Sql;
@@ -18,4 +19,4 @@ if (process.env.NODE_ENV === "production") {
   connection = globalConnection.connection;
 }
 
-export const db = drizzle(connection, { schema: { ...schema } });
+export const db = drizzle(connection, { schema: { ...schema, ...relations } });
