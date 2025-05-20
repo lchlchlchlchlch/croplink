@@ -6,10 +6,13 @@ import { StoreIcon } from "lucide-react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-const FarmerProfile = async () => {
+const BuyerProfile = async () => {
   const session = await auth.api.getSession({ headers: await headers() });
 
   if (!session) {
+    throw redirect("/");
+  }
+  if (session.user.role !== "buyer") {
     throw redirect("/");
   }
 
@@ -58,4 +61,4 @@ const FarmerProfile = async () => {
   );
 };
 
-export default FarmerProfile;
+export default BuyerProfile;

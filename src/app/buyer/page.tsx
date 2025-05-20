@@ -26,7 +26,10 @@ const BuyerPage = async () => {
           <h1 className="text-base font-medium">Order</h1>
         </div>
       </header>
-      <div className="p-6 flex flex-col">{session.user.email}</div>
+      <div className="p-6 flex flex-col">
+        {/* TODO: Replace this with buyer order UI */}
+        {session.user.email}
+      </div>
     </main>
   );
 };

@@ -3,9 +3,7 @@ import { BuyerSidebar } from "./components/buyer-sidebar";
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <SidebarProvider>
       <BuyerSidebar />
