@@ -124,7 +124,7 @@ export function CropsTable({ crops }: { crops: CropTableRows }) {
                 onClick={() => handleSort("amount")}
                 className="flex items-center font-semibold hover:bg-transparent p-0"
               >
-                Quantity
+                Amount
                 <ArrowUpDownIcon className="ml-1 h-4 w-4" />
               </Button>
             </TableHead>
@@ -177,7 +177,9 @@ export function CropsTable({ crops }: { crops: CropTableRows }) {
                   <span>{crop.name}</span>
                 </div>
               </TableCell>
-              <TableCell className="p-4">{crop.amount}</TableCell>
+              <TableCell className="p-4">
+                {crop.amount} lb{crop.amount !== 1 && "s"}
+              </TableCell>
               <TableCell className="p-4">
                 {crop.requestItems?.length > 0
                   ? format(

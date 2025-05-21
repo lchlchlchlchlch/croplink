@@ -34,7 +34,7 @@ const formSchema = z.object({
 
 export default function SignupForm() {
   const [role, setRole] = React.useState<"farmer" | "admin" | "buyer">(
-    "farmer"
+    "farmer",
   );
   const [loading, setLoading] = React.useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
@@ -65,7 +65,7 @@ export default function SignupForm() {
           setLoading(false);
           toast.error(ctx.error.message);
         },
-      }
+      },
     );
 
     if (!(user instanceof Error)) {
@@ -77,9 +77,9 @@ export default function SignupForm() {
           userId: userId,
           role: role.toLowerCase() as "farmer" | "admin" | "buyer",
         });
+        window.location.href = `/${role}`;
       }
     }
-    window.location.href = `/${role}`;
   }
 
   const googleSignIn = async (): Promise<void> => {

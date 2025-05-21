@@ -60,12 +60,6 @@ export async function createRequest({
           amount: item.amount,
           image: item.image,
         });
-
-        // update the crop’s running total
-        await tx
-          .update(crop)
-          .set({ amount: found.amount + item.amount })
-          .where(eq(crop.id, found.id));
       }
 
       return req;

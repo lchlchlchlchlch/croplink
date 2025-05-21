@@ -56,7 +56,7 @@ export async function Suppliers() {
                 {supplier.name}
               </p>
               <p className="text-sm text-muted-foreground">
-                {amounts[supplier.name]} lbs
+                {amounts[supplier.name]} lb{amounts[supplier.name] !== 1 && "s"}
               </p>
             </div>
           </div>
