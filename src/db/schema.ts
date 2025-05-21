@@ -6,7 +6,9 @@ import {
   integer,
   decimal,
   uuid,
+  serial,
 } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -107,3 +109,38 @@ export const requestItem = pgTable("request_item", {
   image: text("image"),
   amount: integer("amount").notNull().default(0),
 });
+
+export const chatRoom = pgTable("chat_room", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull().default("General Chat"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const chatMessage = pgTable("chat_message", {
+  id: serial("id").primaryKey(), 
+  chatRoomId: uuid("chat_room_id")
+    .notNull()
+    .references(() => chatRoom.id, { onDelete: "cascade" }),
+  senderId: text("sender_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+
+export const chatRoomRelations = relations(chatRoom, ({ many }) => ({
+  messages: many(chatMessage), 
+}));
+
+export const chatMessageRelations = relations(chatMessage, ({ one }) => ({
+  chatRoom: one(chatRoom, {
+    fields: [chatMessage.chatRoomId],
+    references: [chatRoom.id],
+  }),
+  sender: one(user, {
+    fields: [chatMessage.senderId],
+    references: [user.id],
+    relationName: 'messageSender'
+  }),
+}));
