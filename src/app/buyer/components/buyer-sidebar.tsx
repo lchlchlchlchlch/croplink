@@ -10,7 +10,6 @@ const data = {
       url: "/buyer",
       icon: TruckIcon,
     },
-
     {
       title: "Chat",
       url: "/buyer/chat",
@@ -25,5 +24,5 @@ const data = {
 };
 
 export function BuyerSidebar() {
-  return <AppSidebar data={data} title={"Buyer"} />;
+  return <AppSidebar data={data} title="Buyer" />;
 }

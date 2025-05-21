@@ -1,5 +1,5 @@
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { FarmerSidebar } from "./_components/farmer-sidebar";
+import { FarmerSidebar } from "./components/farmer-sidebar";
 
 export default function RootLayout({
   children,
