@@ -125,141 +125,143 @@ export default function RequestForm({ userId }: { userId: string }) {
       ) : (
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <FormField
-              control={form.control}
-              name="harvestDate"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Harvest Date</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground",
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) => date < new Date()}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormDescription>
-                    When do you expect to harvest these crops?
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid gap-8 md:grid-cols-2 items-start">
+              <FormField
+                control={form.control}
+                name="harvestDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col space-y-2">
+                    <FormLabel className="text-lg font-medium">Harvest Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground",
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) => date < new Date()}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormDescription>
+                      When do you expect to harvest these crops?
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="space-y-4">
-              <div className="flex items-end justify-between">
-                <h3 className="text-lg font-medium">Crops</h3>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  onClick={() => append({ name: "", image: "", amount: 1 })} // Add name: "" here
-                >
-                  Add Crop
-                  <Plus className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
-
-              {fields.map((field, index) => (
-                <Card key={field.id} className="relative">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-lg font-medium">Crops</h3>
                   <Button
                     type="button"
-                    variant="ghost"
                     size="sm"
-                    className="absolute top-2 right-2 h-8 w-8 p-0"
-                    onClick={() => handleRemoveCrop(index)}
+                    variant="outline"
+                    onClick={() => append({ name: "", image: "", amount: 1 })} // Add name: "" here
                   >
-                    <X className="h-4 w-4" />
+                    Add Crop
+                    <Plus className="ml-2 h-4 w-4" />
                   </Button>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        {/* Crop Name Dropdown */}
-                        <FormField
-                          control={form.control}
-                          name={`crops.${index}.name`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Crop Name</FormLabel>
-                              <Select
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
-                              >
-                                <FormControl>
-                                  <SelectTrigger className="w-full">
-                                    <SelectValue placeholder="Select a crop" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {cropsList.map((option) => (
-                                    <SelectItem
-                                      key={option.name}
-                                      value={option.name}
-                                    >
-                                      {option.name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                </div>
 
-                        {/* Amount Field */}
-                        <FormField
-                          control={form.control}
-                          name={`crops.${index}.amount`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Amount (lbs)</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  placeholder="e.g., 50"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
+                {fields.map((field, index) => (
+                  <Card key={field.id} className="relative">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute top-2 right-2 h-8 w-8 p-0"
+                      onClick={() => handleRemoveCrop(index)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                    <CardContent className="p-4">
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          {/* Crop Name Dropdown */}
+                          <FormField
+                            control={form.control}
+                            name={`crops.${index}.name`}
+                            render={({ field }) => (
+                              <FormItem className="flex flex-col space-y-2">
+                                <FormLabel>Crop Name</FormLabel>
+                                <Select
+                                  onValueChange={field.onChange}
+                                  defaultValue={field.value}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger className="w-full">
+                                      <SelectValue placeholder="Select a crop" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {cropsList.map((option) => (
+                                      <SelectItem
+                                        key={option.name}
+                                        value={option.name}
+                                      >
+                                        {option.name}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          {/* Amount Field */}
+                          <FormField
+                            control={form.control}
+                            name={`crops.${index}.amount`}
+                            render={({ field }) => (
+                              <FormItem className="flex flex-col space-y-2">
+                                <FormLabel>Amount (lbs)</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    placeholder="e.g., 50"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <RequestImageUpload
+                          uploadingStates={uploadingStates}
+                          setUploadingStates={setUploadingStates}
+                          previewImages={previewImages}
+                          setPreviewImages={setPreviewImages}
+                          form={form}
+                          index={index}
                         />
                       </div>
-
-                      <RequestImageUpload
-                        uploadingStates={uploadingStates}
-                        setUploadingStates={setUploadingStates}
-                        previewImages={previewImages}
-                        setPreviewImages={setPreviewImages}
-                        form={form}
-                        index={index}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
 
             <div className="items-center border-y py-4 border-dashed flex justify-between">
