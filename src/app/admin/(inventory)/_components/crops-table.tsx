@@ -163,8 +163,10 @@ export function CropsTable({ crops }: { crops: CropTableRows }) {
                               .slice()
                               .sort(
                                 (a, b) =>
-                                  new Date(b.request?.date ?? 0).getTime() -
-                                  new Date(a.request?.date ?? 0).getTime(),
+                                  new Date(
+                                    b.request?.createdAt ?? 0,
+                                  ).getTime() -
+                                  new Date(a.request?.createdAt ?? 0).getTime(),
                               )[0]?.image || ""
                           : ""
                       }

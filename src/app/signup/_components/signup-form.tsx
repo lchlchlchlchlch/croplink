@@ -14,6 +14,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { authClient } from "@/lib/auth-client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeftIcon, LoaderCircleIcon, WheatIcon } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -91,7 +92,13 @@ export default function SignupForm() {
 
   return (
     <main className="flex flex-col gap-6 row-start-2 items-center w-full max-w-lg bg-white/60 py-8 px-12 rounded-xl border shadow-sm">
-      <WheatIcon size={60} className="text-primary mb-2" />
+      <Image
+        src={"/swdlogo.png"}
+        alt="Logo"
+        width={300}
+        height={300}
+        className="w-16"
+      />
       <div className="text-center">
         <h1 className="text-3xl font-semibold text-gray-800">
           Create an account
