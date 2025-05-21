@@ -126,7 +126,7 @@ export default function RequestImageUpload({
                     src={previewImages[index]}
                     width={300}
                     height={300}
-                    className="object-cover"
+                    className="object-contain w-full h-full"
                     alt={`Crop ${index + 1}`}
                   />
                 </div>
