@@ -13,7 +13,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { WheatIcon } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
@@ -33,11 +33,19 @@ export function AppSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5 text-primary pointer-events-none"
+              className="data-[slot=sidebar-menu-button]:!p-1.5 pointer-events-none"
             >
               <div>
-                <WheatIcon className="h-5 w-5" />
-                <span className="text-lg font-semibold">CropLink</span>
+                <Image
+                  src={"/swdlogo.png"}
+                  height={300}
+                  width={300}
+                  className="w-8 h-8"
+                  alt="Logo"
+                />
+                <span className="text-2xl font-light text-neutral-500">
+                  Crop<span className="font-semibold">Link</span>
+                </span>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>

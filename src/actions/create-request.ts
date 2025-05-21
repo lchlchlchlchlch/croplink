@@ -15,21 +15,16 @@ export async function createRequest({
   userId: string;
 }) {
   try {
-    // Calculate total price in one pass
-    const price = data.crops.reduce((sum, crop) => {
-      const cropInfo = getCropInfo(crop.name);
-      if (!cropInfo) {
-        throw new Error(`Invalid crop: ${crop.name}`);
-      }
-      return sum + crop.amount * (cropInfo.buyFromFarmerPrice || 0);
+    const price = data.crops.reduce((sum, c) => {
+      const info = getCropInfo(c.name);
+      if (!info) throw new Error(`Invalid crop: ${c.name}`);
+      return sum + c.amount * (info.buyFromFarmerPrice || 0);
     }, 0);
 
-    console.log(price);
+    console.log("Total price:", price);
 
-    // Create request in transaction
-    const result = await db.transaction(async (tx) => {
-      // Create the request first
-      const createdRequest = await tx
+    const createdRequest = await db.transaction(async (tx) => {
+      const [req] = await tx
         .insert(request)
         .values({
           userId,
@@ -38,63 +33,53 @@ export async function createRequest({
         })
         .returning();
 
-      if (!createdRequest[0]) {
-        throw new Error("Failed to create request");
+      if (!req) throw new Error("Failed to create request");
+
+      for (const item of data.crops) {
+        // try to find existing crop
+        let [found] = await tx
+          .select()
+          .from(crop)
+          .where(eq(crop.name, item.name));
+
+        // if not found, insert new
+        if (!found) {
+          [found] = await tx
+            .insert(crop)
+            .values({ name: item.name, amount: 0 })
+            .returning();
+
+          if (!found) throw new Error(`Failed to create crop ${item.name}`);
+        }
+
+        // create the requestItem
+        await tx.insert(requestItem).values({
+          userId,
+          cropId: found.id,
+          requestId: req.id,
+          amount: item.amount,
+          image: item.image,
+        });
+
+        // update the crop’s running total
+        await tx
+          .update(crop)
+          .set({ amount: found.amount + item.amount })
+          .where(eq(crop.id, found.id));
       }
 
-      // Process all crops in parallel
-      await Promise.all(
-        data.crops.map(async (item) => {
-          // Find or create crop
-          let foundCrop = await tx
-            .select()
-            .from(crop)
-            .where(eq(crop.name, item.name));
-
-          if (!foundCrop || foundCrop.length === 0) {
-            foundCrop = await tx
-              .insert(crop)
-              .values({
-                name: item.name,
-                amount: 0,
-              })
-              .returning();
-          }
-
-          if (!foundCrop[0]) {
-            throw new Error(`Failed to process crop: ${item.name}`);
-          }
-
-          // Create request item
-          await tx.insert(requestItem).values({
-            userId,
-            cropId: foundCrop[0].id,
-            requestId: createdRequest[0].id,
-            amount: item.amount,
-            image: item.image,
-          });
-
-          // Update crop amount
-          await tx
-            .update(crop)
-            .set({ amount: foundCrop[0].amount + item.amount })
-            .where(eq(crop.name, item.name));
-        }),
-      );
-
-      return createdRequest[0];
+      return req;
     });
 
     revalidatePath("/farmer");
 
-    return result;
-  } catch (error) {
-    // Log the error for debugging
-    console.error("Error in createRequest:", error);
+    return createdRequest;
+  } catch (err) {
+    console.error("Error in createRequest:", err);
     throw new Error(
-      error instanceof Error
-        ? error.message
-        : "An unexpected error occurred while processing the request",
+      err instanceof Error
+        ? err.message
+        : "Unexpected error while processing the request",
     );
   }
 }
