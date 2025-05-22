@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import InventoryList, { InventoryCrop } from "./components/inventory-list";
 import { cropsList } from "@/data/crops-list";
+import BuyerOrderHistory from "./components/order-history";
 
 const BuyerPage = async () => {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -24,6 +25,7 @@ const BuyerPage = async () => {
       image: c.image,
       amount: c.amount,
       price: info?.price ?? 0,
+      userId: session.user.id,
     };
   });
 
@@ -40,8 +42,9 @@ const BuyerPage = async () => {
         </div>
       </header>
 
-      <div className="p-4 lg:p-6 flex flex-col flex-1 overflow-auto min-h-0">
-        <InventoryList crops={inventory} />
+      <div className="p-4 lg:p-6 flex flex-col flex-1 overflow-auto min-h-0 gap-8">
+        <InventoryList crops={inventory} userId={session.user.id} />
+        <BuyerOrderHistory />
       </div>
     </main>
   );

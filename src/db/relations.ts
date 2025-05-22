@@ -5,6 +5,7 @@ import {
   account,
   verification,
   crop,
+  order,
   request,
   requestItem,
 } from "./schema";
@@ -62,4 +63,15 @@ export const requestItemRelations = relations(requestItem, ({ one }) => ({
 
 export const cropRelations = relations(crop, ({ many }) => ({
   requestItems: many(requestItem),
+}));
+
+export const orderRelations = relations(order, ({ one }) => ({
+  user: one(user, {
+    fields: [order.userId],
+    references: [user.id],
+  }),
+  crop: one(crop, {
+    fields: [order.cropId],
+    references: [crop.id],
+  }),
 }));

@@ -16,9 +16,10 @@ export type InventoryCrop = {
 
 type Props = {
   crops: InventoryCrop[];
+  userId: string;
 };
 
-export default function InventoryList({ crops }: Props) {
+export default function InventoryList({ crops, userId }: Props) {
   const [filter, setFilter] = useState("");
 
   const filtered = crops.filter((c) =>
@@ -36,7 +37,7 @@ export default function InventoryList({ crops }: Props) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.map((crop) => (
-          <CropCard key={crop.id} crop={crop} />
+          <CropCard key={crop.id} crop={crop} userId={userId} />
         ))}
         {filtered.length === 0 && (
           <p className="col-span-full text-center text-muted-foreground">
@@ -48,14 +49,14 @@ export default function InventoryList({ crops }: Props) {
   );
 }
 
-function CropCard({ crop }: { crop: InventoryCrop }) {
+function CropCard({ crop, userId }: { crop: InventoryCrop; userId: string }) {
   const [qty, setQty] = useState<number>(1);
   const [ordering, setOrdering] = useState(false);
 
   const onOrder = async () => {
     setOrdering(true);
     try {
-      await orderCrop({ cropId: crop.id, amount: qty });
+      await orderCrop({ cropId: crop.id, amount: qty, userId });
       toast.success(`Ordered ${qty} lb${qty !== 1 ? "s" : ""} of ${crop.name}`);
       setQty(1); // reset qty after success
     } catch (err: any) {
