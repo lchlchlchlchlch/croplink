@@ -93,7 +93,7 @@ export default function SignupForm() {
   return (
     <main className="flex flex-col gap-6 row-start-2 items-center w-full max-w-lg bg-white/60 py-8 px-12 rounded-xl border shadow-sm">
       <Image
-        src={"/swdlogo.png"}
+        src={"/swdlog.png"}
         alt="Logo"
         width={300}
         height={300}
