@@ -169,6 +169,7 @@ export const order = pgTable("order", {
     .notNull()
     .references(() => crop.id, { onDelete: "cascade" }),
   amount: integer("amount").notNull(),
+  approved: boolean("approved").default(false).notNull(),
   createdAt: timestamp("created_at")
     .$defaultFn(() => new Date())
     .notNull(),
