@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   title: "CropLink",
   description: "TSA Software Development 2025",
   icons: {
-    icon: "/swdlog.png",
+    icon: "/swdlogo.png",
   },
 };
 

@@ -38,7 +38,7 @@ export function AppSidebar({
             >
               <div>
                 <Image
-                  src={"/swdlog.png"}
+                  src={"/swdlogo.png"}
                   height={300}
                   width={300}
                   className="w-8 h-8"
