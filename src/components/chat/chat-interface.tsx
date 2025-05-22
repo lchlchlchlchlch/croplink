@@ -1,13 +1,16 @@
 "use client";
 
-import { sendMessageAction, type MessageWithSender } from "@/actions/chat";
+import { sendMessageAction } from "@/actions/chat";
 import { supabase } from "@/lib/supabase/client";
+import { ArrowLeftIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { Button } from "../ui/button";
-import { ArrowLeftIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { MessageWithSender } from "@/types";
+import { toast } from "sonner";
 
+// props interface for the chat interface component
 interface ChatInterfaceProps {
   initialMessages: MessageWithSender[];
   chatRoomId: string;
@@ -15,6 +18,7 @@ interface ChatInterfaceProps {
   allUsersMap: Map<string, { name: string | null; image: string | null }>;
 }
 
+// button component for sending messages
 const SendButton = () => {
   const { pending } = useFormStatus();
   return (
@@ -46,25 +50,25 @@ export function ChatInterface({
     success: undefined,
   });
 
+  // scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // handle form submission states
   useEffect(() => {
     if (sendMessageState.success) {
       setNewMessageInput("");
       formRef.current?.reset();
     }
     if (sendMessageState.error) {
-      alert(`Error: ${sendMessageState.error}`);
-      console.error("Send message error:", sendMessageState.error);
+      toast.error("There was an error sending your message.");
     }
   }, [sendMessageState]);
 
+  // setup real-time message subscription
   useEffect(() => {
-    console.log("🔁 ChatInterface updated");
     if (!chatRoomId) return;
-    console.log("Subscribing to chat room:", chatRoomId);
 
     const channel = supabase
       .channel(`chat-room-${chatRoomId}`)
@@ -96,14 +100,9 @@ export function ChatInterface({
           });
         },
       )
-      .subscribe((status, err) => {
-        if (status === "SUBSCRIBED") {
-          console.log("✅ Subscribed to Realtime chat channel");
-        } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
-          console.error("❌ Supabase channel error:", status, err);
-        }
-      });
+      .subscribe();
 
+    // cleanup subscription on unmount
     return () => {
       supabase.removeChannel(channel).catch(console.error);
     };
@@ -111,19 +110,14 @@ export function ChatInterface({
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+      <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`flex flex-col items-end gap-1 ${
-              msg.senderId === currentUserId ? "justify-end" : "justify-start"
-            }`}
-          >
+          <div key={msg.id} className={`flex flex-col items-end gap-1`}>
             <div
               className={`max-w-[70%] leading-normal rounded-lg p-3 text-sm break-words ${
                 msg.senderId === currentUserId
                   ? "bg-primary text-primary-foreground"
-                  : "bg-muted"
+                  : "bg-muted self-start"
               }`}
             >
               {msg.senderId !== currentUserId && msg.senderName && (
@@ -133,7 +127,9 @@ export function ChatInterface({
               )}
               <p>{msg.content}</p>
             </div>
-            <p className="text-sm font-medium text-gray-500 mt-1 text-right">
+            <p
+              className={`text-xs font-medium text-gray-500 mt-1 text-right ${msg.senderId !== currentUserId && "self-start"}`}
+            >
               Sent at{" "}
               {new Date(msg.createdAt).toLocaleTimeString([], {
                 hour: "2-digit",

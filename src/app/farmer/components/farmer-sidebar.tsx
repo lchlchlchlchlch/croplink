@@ -3,6 +3,7 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { HandCoinsIcon, MessageCircleIcon, UserIcon } from "lucide-react";
 
+// farmer sidebar links
 const data = {
   navMain: [
     {

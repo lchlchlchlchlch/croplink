@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { authClient } from "@/lib/auth-client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeftIcon, LoaderCircleIcon, WheatIcon } from "lucide-react";
+import { ArrowLeftIcon, LoaderCircleIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -21,6 +21,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
+// schema of the form, contains all the fields
 const formSchema = z.object({
   email: z.string().email({
     message: "Please enter a valid email address.",
@@ -34,10 +35,13 @@ const formSchema = z.object({
 });
 
 export default function SignupForm() {
+  // possible roles
   const [role, setRole] = React.useState<"farmer" | "admin" | "buyer">(
     "farmer",
   );
   const [loading, setLoading] = React.useState(false);
+
+  // handle form using useForm from react-hook-form
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -47,11 +51,13 @@ export default function SignupForm() {
     },
   });
 
+  // handle form submission
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const email = values.email;
     const password = values.password;
     const name = values.organizationName;
 
+    // sign up user using betterauth
     const user = await authClient.signUp.email(
       {
         email,
@@ -69,6 +75,7 @@ export default function SignupForm() {
       },
     );
 
+    // handle role assignment and redirection to portal
     if (!(user instanceof Error)) {
       const userData = user?.data;
 
@@ -83,9 +90,11 @@ export default function SignupForm() {
     }
   }
 
+  // handle google sign in
   const googleSignIn = async (): Promise<void> => {
     await authClient.signIn.social({
       provider: "google",
+      // redirect url after completing sign in
       callbackURL: `/signup/pick-role`,
     });
   };
@@ -116,6 +125,7 @@ export default function SignupForm() {
           setRole(value as "farmer" | "admin" | "buyer")
         }
       >
+        {/* tabs to choose role */}
         <TabsList className="grid h-auto w-full grid-cols-3 gap-2 rounded-lg bg-gray-100 p-1 dark:bg-gray-800">
           <TabsTrigger
             value="farmer"
@@ -138,6 +148,7 @@ export default function SignupForm() {
         </TabsList>
       </Tabs>
 
+      {/* form component to enter in details */}
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
@@ -225,8 +236,10 @@ export default function SignupForm() {
         onClick={googleSignIn}
       >
         <Google className="mr-2 h-5 w-5" />
-        <span>Sign up with Google</span>
+        <span>Google</span>
       </Button>
+
+      {/* redirect to sign in */}
       <Link
         href={"/"}
         className="text-sm text-primary hover:text-emerald-700 hover:underline"

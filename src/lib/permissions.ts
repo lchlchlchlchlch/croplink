@@ -1,6 +1,8 @@
 import { createAccessControl } from "better-auth/plugins/access";
 import { defaultStatements, adminAc } from "better-auth/plugins/admin/access";
 
+// delegate and define permissions depending on role
+
 const statement = {
   ...defaultStatements,
   project: ["request", "approve", "order"],

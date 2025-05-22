@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   description: "TSA Software Development 2025",
 };
 
+// layout with farmer sidebar
 export default function RootLayout({
   children,
 }: Readonly<{

@@ -17,14 +17,17 @@ import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
 
+// define sort types
 type SortField = "name" | "crops" | "dateSent" | "harvestDate" | "action";
 type SortDirection = "asc" | "desc";
 
 export function RequestsTable({ requests }: { requests: RequestTableRow[] }) {
+  // state for sorting and image preview
   const [sortField, setSortField] = useState<SortField>("name");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  // handle sorting logic
   const handleSort = (field: SortField) => {
     if (sortField === field) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -34,11 +37,13 @@ export function RequestsTable({ requests }: { requests: RequestTableRow[] }) {
     }
   };
 
+  // handle request approval
   const handleApprove = async (request: RequestTableRow) => {
     await approveRequest({ chosenRequest: request });
     toast.success("Request approved successfully!");
   };
 
+  // sort requests based on current sort field and direction
   const sortedRequests = [...requests].sort((a, b) => {
     const multiplier = sortDirection === "asc" ? 1 : -1;
 
@@ -65,6 +70,7 @@ export function RequestsTable({ requests }: { requests: RequestTableRow[] }) {
 
   return (
     <>
+      {/* image preview modal */}
       {selectedImage && (
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center">
           <button
@@ -73,17 +79,21 @@ export function RequestsTable({ requests }: { requests: RequestTableRow[] }) {
           >
             <XIcon size={20} />
           </button>
-          <img
+          <Image
             src={selectedImage}
             alt="Preview"
             className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
+            width={800}
+            height={800}
           />
         </div>
       )}
 
+      {/* main table container */}
       <div className="rounded-xl border">
         <div className="max-h-[calc(100vh-16rem)] overflow-auto">
           <Table>
+            {/* table header with sort buttons */}
             <TableHeader>
               <TableRow>
                 <TableHead>
@@ -138,6 +148,7 @@ export function RequestsTable({ requests }: { requests: RequestTableRow[] }) {
                 </TableHead>
               </TableRow>
             </TableHeader>
+            {/* table body with request data */}
             <TableBody>
               {sortedRequests.map((req) => (
                 <TableRow key={req.id}>

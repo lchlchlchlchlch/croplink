@@ -1,4 +1,5 @@
 "use client";
+import Google from "@/components/google-icon";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -11,14 +12,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRightIcon, LoaderCircleIcon, WheatIcon } from "lucide-react";
+import { ArrowRightIcon, LoaderCircleIcon } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
-import Google from "@/components/google-icon";
-import Image from "next/image";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -71,7 +71,7 @@ export default function SignupForm() {
   return (
     <main className="flex flex-col gap-6 row-start-2 items-center w-full max-w-lg bg-white/60 py-8 px-12 rounded-xl border shadow-sm">
       <Image
-        src={"/swdlog.png"}
+        src={"/swdlogo.png"}
         alt="Logo"
         width={300}
         height={300}
@@ -152,7 +152,7 @@ export default function SignupForm() {
         onClick={googleSignIn}
       >
         <Google className="mr-2 h-5 w-5" />
-        <span>Sign in with Google</span>
+        <span>Google</span>
       </Button>
       <Link
         href={"/signup"}

@@ -1,5 +1,5 @@
 import { getMessages, getOrCreatePrivateChatRoom } from "@/actions/chat";
-import { ChatInterface } from "@/components/chat/ChatInterface";
+import { ChatInterface } from "@/components/chat/chat-interface";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { db } from "@/db";
@@ -9,12 +9,14 @@ import { eq, inArray } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+// helper function to get the authenticated user or redirect
 async function getAuthenticatedUser() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) redirect("/?error=unauthenticated&callbackUrl=/chat");
   return { id: session.user.id as string };
 }
 
+// main chat page component for role-based messaging
 export async function RoleBasedChatPage({
   params,
   currentRole,
@@ -27,6 +29,7 @@ export async function RoleBasedChatPage({
   const { userId } = await params;
   const currentUser = await getAuthenticatedUser();
 
+  // verify user role and permissions
   const [userRecord] = await db
     .select({ role: schema.user.role })
     .from(schema.user)
@@ -36,6 +39,7 @@ export async function RoleBasedChatPage({
     redirect("/");
   }
 
+  // get all users with specified roles
   const users = await db
     .select({
       id: schema.user.id,
@@ -45,12 +49,14 @@ export async function RoleBasedChatPage({
     .from(schema.user)
     .where(inArray(schema.user.role, otherRoles));
 
+  // get details of the user being chatted with
   const otherUser = await db
     .select({ name: schema.user.name })
     .from(schema.user)
     .where(eq(schema.user.id, userId))
     .then((res) => res[0]);
 
+  // setup chat room and load initial messages
   const chatRoom = await getOrCreatePrivateChatRoom(currentUser.id, userId);
   const initialMessages = await getMessages(chatRoom.id);
 

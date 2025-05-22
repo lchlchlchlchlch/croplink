@@ -8,7 +8,11 @@ import {
   order,
   request,
   requestItem,
+  chatMessage,
+  chatRoom,
 } from "./schema";
+
+// relations defined to improve querying of data by drizzle
 
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
@@ -35,8 +39,6 @@ export const accountRelations = relations(account, ({ one }) => ({
     references: [user.id],
   }),
 }));
-
-// verification has no direct foreign key relations
 
 export const requestRelations = relations(request, ({ one, many }) => ({
   user: one(user, {
@@ -73,5 +75,21 @@ export const orderRelations = relations(order, ({ one }) => ({
   crop: one(crop, {
     fields: [order.cropId],
     references: [crop.id],
+  }),
+}));
+
+export const chatRoomRelations = relations(chatRoom, ({ many }) => ({
+  messages: many(chatMessage),
+}));
+
+export const chatMessageRelations = relations(chatMessage, ({ one }) => ({
+  chatRoom: one(chatRoom, {
+    fields: [chatMessage.chatRoomId],
+    references: [chatRoom.id],
+  }),
+  sender: one(user, {
+    fields: [chatMessage.senderId],
+    references: [user.id],
+    relationName: "messageSender",
   }),
 }));

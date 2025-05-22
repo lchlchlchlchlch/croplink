@@ -8,13 +8,16 @@ import Image from "next/image";
 import { format } from "date-fns";
 import { CheckIcon, ClockIcon } from "lucide-react";
 
+// displays order history for buyers
 const BuyerOrderHistory = async () => {
   const session = await auth.api.getSession({ headers: await headers() });
 
+  // redirect if not logged in or not a buyer
   if (!session || session.user.role !== "buyer") {
     throw redirect("/");
   }
 
+  // fetch all orders for current user with crop details
   const orders = await db.query.order.findMany({
     where: eq(order.userId, session.user.id),
     with: {
@@ -23,8 +26,9 @@ const BuyerOrderHistory = async () => {
     orderBy: (o) => o.createdAt,
   });
 
+  // sort orders by date, newest first
   const sortedOrders = orders.sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 
   return (
@@ -39,6 +43,7 @@ const BuyerOrderHistory = async () => {
             No orders have been placed yet.
           </div>
         )}
+        {/* map through orders and display them in cards */}
         {sortedOrders.map((order) => (
           <div
             key={order.id}
@@ -54,6 +59,7 @@ const BuyerOrderHistory = async () => {
                     {format(new Date(order.createdAt), "MMM d, yyyy")}
                   </div>
                 </div>
+                {/* display order status badge */}
                 {order.approved ? (
                   <div className="flex gap-1.5 items-center text-xs font-semibold text-green-700 bg-green-100 px-2.5 py-1 rounded-full">
                     <CheckIcon size={14} /> Approved
@@ -65,6 +71,7 @@ const BuyerOrderHistory = async () => {
                 )}
               </div>
 
+              {/* crop details section */}
               <div>
                 <div className="flex items-center gap-3 border rounded-md bg-zinc-50 p-3">
                   {order.crop.image && (

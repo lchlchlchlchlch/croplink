@@ -1,5 +1,6 @@
 "use client";
 
+import { approveOrder } from "@/actions/approve-order";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -9,30 +10,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CheckIcon, ArrowUpDownIcon } from "lucide-react";
+import { OrdersTableRow } from "@/types";
+import { format } from "date-fns";
+import { ArrowUpDownIcon, CheckIcon } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
-import { format } from "date-fns";
-import { approveOrder } from "@/actions/approve-order";
-import { order as OrderType } from "@/db/schema";
 
-interface OrdersTableProps {
-  orders: (typeof OrderType)["$inferSelect"] &
-    {
-      user: { name: string };
-      crop: { name: string; image: string | null };
-    }[];
-}
-
+// define sorting types
 type SortField = "buyer" | "crop" | "date" | "amount" | "status";
 type SortDirection = "asc" | "desc";
 
-export function OrdersTable({ orders }: OrdersTableProps) {
+export function OrdersTable({ orders }: { orders: OrdersTableRow[] }) {
+  // track approval state and sorting preferences
   const [approving, setApproving] = useState<string | null>(null);
   const [sortField, setSortField] = useState<SortField>("buyer");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
+  // handle order approval
   const handleApprove = async (orderId: string) => {
     setApproving(orderId);
     try {
@@ -47,6 +42,7 @@ export function OrdersTable({ orders }: OrdersTableProps) {
     }
   };
 
+  // handle column sorting
   const handleSort = (field: SortField) => {
     if (sortField === field) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -56,6 +52,7 @@ export function OrdersTable({ orders }: OrdersTableProps) {
     }
   };
 
+  // sort orders based on selected field and direction
   const sortedOrders = [...orders].sort((a, b) => {
     const multiplier = sortDirection === "asc" ? 1 : -1;
     switch (sortField) {
@@ -80,6 +77,7 @@ export function OrdersTable({ orders }: OrdersTableProps) {
   return (
     <div className="rounded-xl border">
       <Table>
+        {/* table header with sort buttons */}
         <TableHeader>
           <TableRow>
             <TableHead>
@@ -134,6 +132,7 @@ export function OrdersTable({ orders }: OrdersTableProps) {
             </TableHead>
           </TableRow>
         </TableHeader>
+        {/* table body with sorted order data */}
         <TableBody>
           {sortedOrders.map((order) => (
             <TableRow key={order.id}>

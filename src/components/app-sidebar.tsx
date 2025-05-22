@@ -29,6 +29,7 @@ export function AppSidebar({
   return (
     <Sidebar collapsible="offcanvas" variant="inset">
       <SidebarHeader>
+        {/* logo section */}
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
@@ -53,11 +54,13 @@ export function AppSidebar({
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
+          {/* title (depends on current portal) */}
           <SidebarGroupLabel>{title}</SidebarGroupLabel>
           <SidebarGroupContent className="flex flex-col gap-2">
             <SidebarMenu>
               {data.navMain.map((item) => (
                 <SidebarMenuItem key={item.title}>
+                  {/* Each link special to each portal is mapped */}
                   <Link href={item.url}>
                     <SidebarMenuButton
                       tooltip={item.title}

@@ -15,15 +15,15 @@ export async function createRequest({
   userId: string;
 }) {
   try {
+    // calculate price of request
     const price = data.crops.reduce((sum, c) => {
       const info = getCropInfo(c.name);
       if (!info) throw new Error(`Invalid crop: ${c.name}`);
       return sum + c.amount * (info.buyFromFarmerPrice || 0);
     }, 0);
 
-    console.log("Total price:", price);
-
     const createdRequest = await db.transaction(async (tx) => {
+      // create db request
       const [req] = await tx
         .insert(request)
         .values({
@@ -65,6 +65,7 @@ export async function createRequest({
       return req;
     });
 
+    // revalidate data
     revalidatePath("/farmer");
 
     return createdRequest;

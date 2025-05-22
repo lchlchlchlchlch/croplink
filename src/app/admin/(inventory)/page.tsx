@@ -11,7 +11,9 @@ import { revalidatePath } from "next/cache";
 import { Button } from "@/components/ui/button";
 import { RefreshCwIcon } from "lucide-react";
 
+// inventory page
 const AdminPage = async () => {
+  // verify user and user role
   const session = await auth.api.getSession({ headers: await headers() });
 
   if (!session) {
@@ -20,6 +22,8 @@ const AdminPage = async () => {
   if (session.user.role !== "admin") {
     throw redirect("/");
   }
+
+  // fetch crops from db
   const crops = await db.query.crop.findMany({
     with: {
       requestItems: {
@@ -30,6 +34,7 @@ const AdminPage = async () => {
     },
   });
 
+  // used to refresh data
   const refresh = async () => {
     "use server";
     revalidatePath("/");
@@ -47,9 +52,10 @@ const AdminPage = async () => {
           <h1 className="text-base font-medium">Inventory</h1>
         </div>
       </header>
-      <div className="p-6 flex flex-col flex-1">
+      <div className="p-6 flex flex-col flex-1 overflow-auto">
+        {/* Tabs to pick between crops and suppliers */}
         <Tabs defaultValue="inventory">
-          <div className="flex gap-4">
+          <div className="md:flex gap-4">
             <TabsList className="grid h-auto w-full grid-cols-2 gap-2 rounded-lg bg-gray-100 p-1 dark:bg-gray-800">
               <TabsTrigger
                 value="inventory"
@@ -65,7 +71,10 @@ const AdminPage = async () => {
               </TabsTrigger>
             </TabsList>
             <form action={refresh}>
-              <Button className="w-fit" variant={"outline"}>
+              <Button
+                className="w-full mt-2 md:mt-0 md:w-fit"
+                variant={"outline"}
+              >
                 Refresh Data <RefreshCwIcon />
               </Button>
             </form>

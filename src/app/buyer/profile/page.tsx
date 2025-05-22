@@ -6,6 +6,7 @@ import { StoreIcon } from "lucide-react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+// profile page for buyers
 const BuyerProfile = async () => {
   const session = await auth.api.getSession({ headers: await headers() });
 
@@ -17,6 +18,7 @@ const BuyerProfile = async () => {
   }
 
   return (
+    // user info
     <main>
       <header className="group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 flex h-12 shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear">
         <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
@@ -29,7 +31,7 @@ const BuyerProfile = async () => {
         </div>
       </header>
       <div className="flex flex-col p-4 lg:p-6">
-        <div className="flex gap-8 border rounded-lg items-center p-8 shadow">
+        <div className="flex md:flex-row flex-col gap-8 border rounded-lg items-center p-8 shadow">
           <div className="border-2 rounded-xl p-8 border-primary bg-primary/5">
             <StoreIcon className="text-primary" size={60} />
           </div>
@@ -62,3 +64,4 @@ const BuyerProfile = async () => {
 };
 
 export default BuyerProfile;
+

@@ -10,10 +10,12 @@ import Image from "next/image";
 import { UseFormReturn } from "react-hook-form";
 import { toast } from "sonner";
 
+// cloudinary configuration
 const CLOUDINARY_CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 const CLOUDINARY_UPLOAD_PRESET =
   process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 
+// type definition for form data
 type FormType = UseFormReturn<
   {
     harvestDate: Date;
@@ -33,6 +35,7 @@ type FormType = UseFormReturn<
   }
 >;
 
+// component for handling image uploads in a form
 export default function RequestImageUpload({
   uploadingStates,
   setUploadingStates,
@@ -52,6 +55,7 @@ export default function RequestImageUpload({
   form: FormType;
   index: number;
 }) {
+  // handles the image upload process to cloudinary
   const handleImageUpload = async (
     index: number,
     e: React.ChangeEvent<HTMLInputElement>,
@@ -80,23 +84,20 @@ export default function RequestImageUpload({
       );
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Cloudinary upload failed: ${errorData.error.message}`);
+        toast.error("There was an error uploading your image.");
       }
 
       const data = await response.json();
       const imageUrl = data.secure_url;
 
+      // update form and preview states with the new image
       form.setValue(`crops.${index}.image`, imageUrl);
       setPreviewImages((prev) => ({
         ...prev,
         [index]: imageUrl,
       }));
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      alert(
-        `Error uploading image: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
+    } catch {
+      toast.error("There was an error uploading your image.");
       setPreviewImages((prev) => ({
         ...prev,
         [index]: "",
@@ -115,11 +116,13 @@ export default function RequestImageUpload({
           <FormLabel>Image of Crop</FormLabel>
           <FormControl>
             <div className="flex flex-col items-center gap-4">
+              {/* loading state */}
               {uploadingStates[index] && (
                 <div className="flex items-center justify-center h-40 w-full rounded-md border border-dashed">
                   <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
                 </div>
               )}
+              {/* preview image */}
               {!uploadingStates[index] && previewImages[index] && (
                 <div className="relative h-40 rounded-md overflow-hidden">
                   <Image
@@ -131,6 +134,7 @@ export default function RequestImageUpload({
                   />
                 </div>
               )}
+              {/* empty state */}
               {!uploadingStates[index] && !previewImages[index] && (
                 <div className="flex items-center justify-center h-40 w-full rounded-md border border-dashed bg-muted">
                   <span className="text-muted-foreground text-sm">
@@ -138,9 +142,9 @@ export default function RequestImageUpload({
                   </span>
                 </div>
               )}
+              {/* upload button */}
               <label className="border rounded-md px-3 h-10 flex items-center justify-center gap-2 text-sm font-medium w-full hover:bg-muted transition-all cursor-pointer">
                 {" "}
-                {/* Adjusted h-10 */}
                 <ImageIcon size={14} />
                 Upload Image
                 <input

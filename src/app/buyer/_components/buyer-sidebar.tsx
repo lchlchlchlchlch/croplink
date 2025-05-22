@@ -8,6 +8,7 @@ import {
   UserIcon,
 } from "lucide-react";
 
+// buyer sidebar links
 const data = {
   navMain: [
     {

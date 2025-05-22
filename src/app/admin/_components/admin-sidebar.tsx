@@ -8,6 +8,7 @@ import {
   UserIcon,
 } from "lucide-react";
 
+// links for admin sidebar
 const data = {
   navMain: [
     {

@@ -38,8 +38,11 @@ type CropTableRows = {
   }[];
 }[];
 
+// ways to sort data
 type SortField = "name" | "amount" | "lastReceived" | "saleValue";
 type SortDirection = "asc" | "desc";
+
+// table displaying crop inventory
 
 export function CropsTable({ crops }: { crops: CropTableRows }) {
   const [sortField, setSortField] = useState<SortField>("name");
@@ -57,6 +60,7 @@ export function CropsTable({ crops }: { crops: CropTableRows }) {
   const sortedCrops = [...crops].sort((a, b) => {
     const multiplier = sortDirection === "asc" ? 1 : -1;
 
+    // handle sort differently depending on sort method
     switch (sortField) {
       case "name":
         return multiplier * a.name.localeCompare(b.name);
@@ -94,8 +98,8 @@ export function CropsTable({ crops }: { crops: CropTableRows }) {
         return multiplier * (aDate - bDate);
 
       case "saleValue":
-        const aValue = a.amount * (getCropInfo(a.name).bulkSalePrice || 0);
-        const bValue = b.amount * (getCropInfo(b.name).bulkSalePrice || 0);
+        const aValue = a.amount * (getCropInfo(a.name)?.bulkSalePrice || 0);
+        const bValue = b.amount * (getCropInfo(b.name)?.bulkSalePrice || 0);
         return multiplier * (aValue - bValue);
 
       default:
@@ -189,7 +193,7 @@ export function CropsTable({ crops }: { crops: CropTableRows }) {
               <TableCell className="p-4">
                 $
                 {(
-                  crop.amount * (getCropInfo(crop.name).bulkSalePrice || 0)
+                  crop.amount * (getCropInfo(crop.name)?.bulkSalePrice || 0)
                 ).toFixed(2)}
               </TableCell>
             </TableRow>

@@ -5,6 +5,7 @@ import postgres from "postgres";
 
 let connection: postgres.Sql;
 
+// configure connection depending on dev or prod
 if (process.env.NODE_ENV === "production") {
   connection = postgres(process.env.DATABASE_URL || "");
 } else {
@@ -19,4 +20,5 @@ if (process.env.NODE_ENV === "production") {
   connection = globalConnection.connection;
 }
 
+// pass in connection, schema, relations to drizzle
 export const db = drizzle(connection, { schema: { ...schema, ...relations } });

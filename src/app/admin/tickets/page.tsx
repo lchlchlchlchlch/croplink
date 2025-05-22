@@ -11,9 +11,11 @@ import { RefreshCwIcon } from "lucide-react";
 import { RequestsTable } from "./_components/requests-table";
 import { OrdersTable } from "./_components/orders-table";
 
+// admin page component that handles requests and orders
 const AdminPage = async () => {
   const session = await auth.api.getSession({ headers: await headers() });
 
+  // redirect if user is not authenticated or not an admin
   if (!session) {
     throw redirect("/");
   }
@@ -21,6 +23,7 @@ const AdminPage = async () => {
     throw redirect("/");
   }
 
+  // fetch requests and orders data in parallel
   const [requests, orders] = await Promise.all([
     db.query.request.findMany({
       with: {
@@ -40,6 +43,7 @@ const AdminPage = async () => {
     }),
   ]);
 
+  // server action to refresh the page data
   const refresh = async () => {
     "use server";
     revalidatePath("/");
@@ -58,8 +62,9 @@ const AdminPage = async () => {
         </div>
       </header>
       <div className="p-6 flex flex-col flex-1">
+        {/* tabs component for switching between requests and orders */}
         <Tabs defaultValue="requests">
-          <div className="flex gap-4">
+          <div className="md:flex gap-4">
             <TabsList className="grid h-auto w-full grid-cols-2 gap-2 rounded-lg bg-gray-100 p-1 dark:bg-gray-800">
               <TabsTrigger
                 value="requests"
@@ -74,8 +79,12 @@ const AdminPage = async () => {
                 Orders
               </TabsTrigger>
             </TabsList>
+            {/* refresh button with server action */}
             <form action={refresh}>
-              <Button className="w-fit" variant={"outline"}>
+              <Button
+                className="w-full mt-2 md:mt-0 md:w-fit"
+                variant={"outline"}
+              >
                 Refresh Data <RefreshCwIcon />
               </Button>
             </form>

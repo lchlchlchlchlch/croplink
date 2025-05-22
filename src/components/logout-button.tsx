@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 import { LogOutIcon } from "lucide-react";
 
+// logout button using better auth client
 const LogoutButton = () => {
   const router = useRouter();
   const logout = async () => {

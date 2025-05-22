@@ -1,5 +1,5 @@
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { BuyerSidebar } from "./components/buyer-sidebar";
+import { BuyerSidebar } from "./_components/buyer-sidebar";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   description: "TSA Software Development 2025",
 };
 
+// layout with buyer sidebar
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {

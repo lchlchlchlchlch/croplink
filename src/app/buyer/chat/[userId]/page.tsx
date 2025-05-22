@@ -1,11 +1,9 @@
-import { RoleBasedChatPage } from "@/components/chat/RoleBasedChatPage";
+import { RoleBasedChatPage } from "@/components/chat/role-based-chat-page";
 
-export default function FarmerChatPage(props: any) {
+export default function BuyerChatPage(props: {
+  params: Promise<{ userId: string }>;
+}) {
   return (
-    <RoleBasedChatPage
-      {...props}
-      currentRole="buyer"
-      otherRoles={["admin"]}
-    />
+    <RoleBasedChatPage {...props} currentRole="buyer" otherRoles={["admin"]} />
   );
 }

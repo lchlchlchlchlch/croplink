@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   description: "TSA Software Development 2025",
 };
 
+// create layout with special sidebar for admin portal
 export default function RootLayout({
   children,
 }: Readonly<{

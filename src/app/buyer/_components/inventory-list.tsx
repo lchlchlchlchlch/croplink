@@ -2,28 +2,23 @@
 import { orderCrop } from "@/actions/order-crop";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { InventoryCrop } from "@/types";
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
-
-export type InventoryCrop = {
-  id: string;
-  name: string;
-  image?: string | null;
-  amount: number;
-  price: number; // price per pound
-};
 
 type Props = {
   crops: InventoryCrop[];
   userId: string;
 };
 
+// main inventory component that displays a list of crops
 export default function InventoryList({ crops, userId }: Props) {
   const [filter, setFilter] = useState("");
 
+  // filter crops based on search input
   const filtered = crops.filter((c) =>
-    c.name.toLowerCase().includes(filter.toLowerCase())
+    c.name.toLowerCase().includes(filter.toLowerCase()),
   );
 
   return (
@@ -49,18 +44,20 @@ export default function InventoryList({ crops, userId }: Props) {
   );
 }
 
+// individual crop card component
 function CropCard({ crop, userId }: { crop: InventoryCrop; userId: string }) {
   const [qty, setQty] = useState<number>(1);
   const [ordering, setOrdering] = useState(false);
 
+  // handle order submission
   const onOrder = async () => {
     setOrdering(true);
     try {
       await orderCrop({ cropId: crop.id, amount: qty, userId });
       toast.success(`Ordered ${qty} lb${qty !== 1 ? "s" : ""} of ${crop.name}`);
       setQty(1); // reset qty after success
-    } catch (err: any) {
-      toast.error(err?.message ?? "Failed to place order");
+    } catch {
+      toast.error("Failed to place order");
     } finally {
       setOrdering(false);
     }
@@ -79,7 +76,9 @@ function CropCard({ crop, userId }: { crop: InventoryCrop; userId: string }) {
           />
         )}
         <div className="flex flex-col gap-0.5 flex-1">
-          <span className="text-lg font-medium leading-none">{crop.name}</span>
+          <span className="text-lg font-medium leading-none">
+            {crop.plural}
+          </span>
           <span className="text-sm text-muted-foreground">
             ${crop.price.toFixed(2)} / lb
           </span>

@@ -37,6 +37,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import RequestImageUpload from "./request-image-upload";
 
+// define the shape of our form data
 const formSchema = z.object({
   harvestDate: z.date({
     required_error: "A harvest date is required.",
@@ -56,17 +57,22 @@ const formSchema = z.object({
     }),
 });
 
+// typescript type for our form values
 type FormValues = z.infer<typeof formSchema>;
 
 export default function RequestForm({ userId }: { userId: string }) {
+  // state for toggling form visibility
   const [showForm, setShowForm] = useState(false);
+  // state for storing image previews
   const [previewImages, setPreviewImages] = useState<Record<number, string>>(
     {},
   );
+  // state for tracking image upload status
   const [uploadingStates, setUploadingStates] = useState<
     Record<number, boolean>
   >({});
 
+  // initialize form with react-hook-form
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -75,11 +81,13 @@ export default function RequestForm({ userId }: { userId: string }) {
     },
   });
 
+  // setup field array for dynamic crop entries
   const { fields, append, remove } = useFieldArray({
     name: "crops",
     control: form.control,
   });
 
+  // handle removal of a crop entry
   const handleRemoveCrop = (index: number) => {
     if (fields.length <= 1) return;
     remove(index);
@@ -102,13 +110,14 @@ export default function RequestForm({ userId }: { userId: string }) {
     });
   };
 
+  // handle form submission
   async function onSubmit(data: FormValues) {
     await createRequest({ data, userId });
-    toast.success("Request submitted successfully!"); // Using toast for success
+    toast.success("Request submitted successfully!");
     setShowForm(false);
     form.reset({
       harvestDate: undefined,
-      crops: [{ name: "", image: "", amount: 1 }], // Reset name field
+      crops: [{ name: "", image: "", amount: 1 }],
     });
     setPreviewImages({});
     setUploadingStates({});
@@ -119,14 +128,17 @@ export default function RequestForm({ userId }: { userId: string }) {
       <h1 className="text-xl font-semibold mb-6">New Surplus Request</h1>
 
       {!showForm ? (
+        // show new request button when form is hidden
         <Button size="lg" className="w-full" onClick={() => setShowForm(true)}>
           New
           <Plus className="h-4 w-4" />
         </Button>
       ) : (
+        // render form when showForm is true
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="grid gap-8 md:grid-cols-2 items-start">
+              {/* harvest date picker */}
               <FormField
                 control={form.control}
                 name="harvestDate"
@@ -172,6 +184,7 @@ export default function RequestForm({ userId }: { userId: string }) {
                 )}
               />
 
+              {/* crops section */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-lg font-medium">Crops</h3>
@@ -179,13 +192,14 @@ export default function RequestForm({ userId }: { userId: string }) {
                     type="button"
                     size="sm"
                     variant="outline"
-                    onClick={() => append({ name: "", image: "", amount: 1 })} // Add name: "" here
+                    onClick={() => append({ name: "", image: "", amount: 1 })}
                   >
                     Add Crop
                     <Plus className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
 
+                {/* dynamic crop fields */}
                 {fields.map((field, index) => (
                   <Card key={field.id} className="relative">
                     <Button
@@ -200,7 +214,7 @@ export default function RequestForm({ userId }: { userId: string }) {
                     <CardContent className="p-4">
                       <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
-                          {/* Crop Name Dropdown */}
+                          {/* crop name selection */}
                           <FormField
                             control={form.control}
                             name={`crops.${index}.name`}
@@ -232,7 +246,7 @@ export default function RequestForm({ userId }: { userId: string }) {
                             )}
                           />
 
-                          {/* Amount Field */}
+                          {/* amount input */}
                           <FormField
                             control={form.control}
                             name={`crops.${index}.amount`}
@@ -252,6 +266,7 @@ export default function RequestForm({ userId }: { userId: string }) {
                           />
                         </div>
 
+                        {/* image upload component */}
                         <RequestImageUpload
                           uploadingStates={uploadingStates}
                           setUploadingStates={setUploadingStates}
@@ -267,6 +282,7 @@ export default function RequestForm({ userId }: { userId: string }) {
               </div>
             </div>
 
+            {/* total value calculation */}
             <div className="items-center border-y py-4 border-dashed flex justify-between">
               <div className="font-medium text-base">Total Value:</div>
               <div className="font-medium text-base">
@@ -276,7 +292,7 @@ export default function RequestForm({ userId }: { userId: string }) {
                     const raw: string | number = form.watch(
                       `crops.${index}.amount`,
                     );
-                    const amount = parseFloat(raw.toString()) || 0; // ← ensure it’s a Number
+                    const amount = parseFloat(raw.toString()) || 0;
                     return (
                       sum +
                       amount *
@@ -288,6 +304,7 @@ export default function RequestForm({ userId }: { userId: string }) {
               </div>
             </div>
 
+            {/* form actions */}
             <div className="grid grid-cols-2 gap-4">
               <Button
                 type="button"
@@ -297,7 +314,7 @@ export default function RequestForm({ userId }: { userId: string }) {
                   setShowForm(false);
                   form.reset({
                     harvestDate: undefined,
-                    crops: [{ name: "", image: "", amount: 1 }], // Reset name
+                    crops: [{ name: "", image: "", amount: 1 }],
                   });
                   setPreviewImages({});
                   setUploadingStates({});

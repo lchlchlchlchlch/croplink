@@ -6,6 +6,7 @@ import { WheatIcon } from "lucide-react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+// profile page for farmers
 const FarmerProfile = async () => {
   const session = await auth.api.getSession({ headers: await headers() });
 
@@ -26,7 +27,7 @@ const FarmerProfile = async () => {
         </div>
       </header>
       <div className="flex flex-col p-4 lg:p-6">
-        <div className="flex gap-8 border rounded-lg items-center p-8 shadow">
+        <div className="flex md:flex-row flex-col gap-8 border rounded-lg items-center p-8 shadow">
           <div className="border-2 rounded-xl p-8 border-primary bg-primary/5">
             <WheatIcon className="text-primary" size={60} />
           </div>

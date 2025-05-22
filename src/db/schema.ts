@@ -1,15 +1,15 @@
 import {
+  boolean,
+  decimal,
+  integer,
   pgTable,
+  primaryKey,
   text,
   timestamp,
-  boolean,
-  integer,
-  decimal,
   uuid,
-  bigserial,
-  primaryKey,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
+
+// postgres schema defined for drizzle
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -69,10 +69,10 @@ export const verification = pgTable("verification", {
   value: text("value").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").$defaultFn(
-    () => /* @__PURE__ */ new Date()
+    () => /* @__PURE__ */ new Date(),
   ),
   updatedAt: timestamp("updated_at").$defaultFn(
-    () => /* @__PURE__ */ new Date()
+    () => /* @__PURE__ */ new Date(),
   ),
 });
 
@@ -89,7 +89,7 @@ export const request = pgTable("request", {
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").$defaultFn(
-    () => /* @__PURE__ */ new Date()
+    () => /* @__PURE__ */ new Date(),
   ),
   date: timestamp("date").notNull(),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
@@ -129,22 +129,6 @@ export const chatMessage = pgTable("chat_message", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const chatRoomRelations = relations(chatRoom, ({ many }) => ({
-  messages: many(chatMessage),
-}));
-
-export const chatMessageRelations = relations(chatMessage, ({ one }) => ({
-  chatRoom: one(chatRoom, {
-    fields: [chatMessage.chatRoomId],
-    references: [chatRoom.id],
-  }),
-  sender: one(user, {
-    fields: [chatMessage.senderId],
-    references: [user.id],
-    relationName: "messageSender",
-  }),
-}));
-
 export const chatRoomUser = pgTable(
   "chat_room_user",
   {
@@ -157,7 +141,7 @@ export const chatRoomUser = pgTable(
   },
   (t) => ({
     pk: primaryKey(t.chatRoomId, t.userId),
-  })
+  }),
 );
 
 export const order = pgTable("order", {
