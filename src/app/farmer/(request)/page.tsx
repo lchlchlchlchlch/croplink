@@ -32,6 +32,10 @@ const FarmerPage = async () => {
     },
   });
 
+  const sortedRequests = requests.sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  );
+
   return (
     <main className="h-screen md:h-[calc(100vh-1.5rem)] flex flex-col">
       <header className="group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 flex h-12 shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear">
@@ -57,7 +61,7 @@ const FarmerPage = async () => {
               No requests have been submitted.
             </div>
           )}
-          {requests.map((item) => (
+          {sortedRequests.map((item) => (
             <div
               key={item.id}
               className="flex flex-col border rounded-xl p-6 shadow-sm group hover:bg-zinc-50 transition duration-200 bg-white"
@@ -66,7 +70,7 @@ const FarmerPage = async () => {
                 <div className="flex justify-between items-start">
                   <div>
                     <div className="text-xs font-medium text-muted-foreground mb-0.5">
-                      Date Submitted
+                      Harvest Date
                     </div>
                     <div className="text-sm font-semibold">
                       {new Date(item.date).toLocaleDateString()}

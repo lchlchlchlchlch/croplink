@@ -81,6 +81,7 @@ export default function RequestForm({ userId }: { userId: string }) {
   });
 
   const handleRemoveCrop = (index: number) => {
+    if (fields.length <= 1) return;
     remove(index);
     setPreviewImages((prev) => {
       const newPreviews = { ...prev };
@@ -115,12 +116,12 @@ export default function RequestForm({ userId }: { userId: string }) {
 
   return (
     <div className="border rounded-xl shadow p-8">
-      <h1 className="text-xl font-medium mb-6">New Surplus Request</h1>
+      <h1 className="text-xl font-semibold mb-6">New Surplus Request</h1>
 
       {!showForm ? (
         <Button size="lg" className="w-full" onClick={() => setShowForm(true)}>
           New
-          <Plus className="ml-2 h-4 w-4" />
+          <Plus className="h-4 w-4" />
         </Button>
       ) : (
         <Form {...form}>
@@ -131,7 +132,9 @@ export default function RequestForm({ userId }: { userId: string }) {
                 name="harvestDate"
                 render={({ field }) => (
                   <FormItem className="flex flex-col space-y-2">
-                    <FormLabel className="text-lg font-medium">Harvest Date</FormLabel>
+                    <FormLabel className="text-lg font-medium">
+                      Harvest Date
+                    </FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
