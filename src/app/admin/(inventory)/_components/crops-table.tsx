@@ -73,8 +73,8 @@ export function CropsTable({ crops }: { crops: CropTableRows }) {
                   .sort(
                     (x, y) =>
                       new Date(y.request?.date ?? 0).getTime() -
-                      new Date(x.request?.date ?? 0).getTime(),
-                  )[0]?.request?.date ?? "",
+                      new Date(x.request?.date ?? 0).getTime()
+                  )[0]?.request?.date ?? ""
               ).getTime()
             : 0;
 
@@ -86,8 +86,8 @@ export function CropsTable({ crops }: { crops: CropTableRows }) {
                   .sort(
                     (x, y) =>
                       new Date(y.request?.date ?? 0).getTime() -
-                      new Date(x.request?.date ?? 0).getTime(),
-                  )[0]?.request?.date ?? "",
+                      new Date(x.request?.date ?? 0).getTime()
+                  )[0]?.request?.date ?? ""
               ).getTime()
             : 0;
 
@@ -157,19 +157,7 @@ export function CropsTable({ crops }: { crops: CropTableRows }) {
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-md bg-green-100 flex items-center justify-center">
                     <Image
-                      src={
-                        crop.requestItems?.length > 0
-                          ? crop.requestItems
-                              .slice()
-                              .sort(
-                                (a, b) =>
-                                  new Date(
-                                    b.request?.createdAt ?? 0,
-                                  ).getTime() -
-                                  new Date(a.request?.createdAt ?? 0).getTime(),
-                              )[0]?.image || ""
-                          : ""
-                      }
+                      src={crop.image || "/placeholder.png"}
                       alt={crop.name}
                       width={400}
                       height={400}
@@ -191,10 +179,10 @@ export function CropsTable({ crops }: { crops: CropTableRows }) {
                           .sort(
                             (a, b) =>
                               new Date(b.request?.date ?? 0).getTime() -
-                              new Date(a.request?.date ?? 0).getTime(),
-                          )[0]?.request?.date ?? "",
+                              new Date(a.request?.date ?? 0).getTime()
+                          )[0]?.request?.date ?? ""
                       ),
-                      "MMM d, yyyy",
+                      "MMM d, yyyy"
                     )
                   : "No requests"}
               </TableCell>

@@ -1,7 +1,12 @@
 "use client";
 
 import { AppSidebar } from "@/components/app-sidebar";
-import { MessageCircleIcon, TruckIcon, UserIcon } from "lucide-react";
+import {
+  MessageCircleIcon,
+  HistoryIcon,
+  TruckIcon,
+  UserIcon,
+} from "lucide-react";
 
 const data = {
   navMain: [
@@ -9,6 +14,11 @@ const data = {
       title: "Order",
       url: "/buyer",
       icon: TruckIcon,
+    },
+    {
+      title: "Order History",
+      url: "/buyer/order-history",
+      icon: HistoryIcon,
     },
     {
       title: "Chat",

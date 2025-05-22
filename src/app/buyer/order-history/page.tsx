@@ -1,33 +1,16 @@
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { auth } from "@/lib/auth";
-import { db } from "@/db";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import InventoryList, { InventoryCrop } from "./components/inventory-list";
-import { cropsList } from "@/data/crops-list";
-import BuyerOrderHistory from "./components/order-history";
+import BuyerOrderHistory from "../components/order-history";
 
-const BuyerPage = async () => {
+const BuyerOrderHistoryPage = async () => {
   const session = await auth.api.getSession({ headers: await headers() });
 
   if (!session || session.user.role !== "buyer") {
     throw redirect("/");
   }
-
-  const crops = await db.query.crop.findMany();
-
-  const inventory: InventoryCrop[] = crops.map((c) => {
-    const info = cropsList.find((ci) => ci.name === c.name);
-    return {
-      id: c.id,
-      name: c.name,
-      image: c.image,
-      amount: c.amount,
-      price: info?.price ?? 0,
-      userId: session.user.id,
-    };
-  });
 
   return (
     <main className="h-screen md:h-[calc(100vh-1.5rem)] flex flex-col">
@@ -38,15 +21,15 @@ const BuyerPage = async () => {
             orientation="vertical"
             className="mx-2 data-[orientation=vertical]:h-4"
           />
-          <h1 className="text-base font-medium">Order</h1>
+          <h1 className="text-base font-medium">Order History</h1>
         </div>
       </header>
 
-      <div className="p-4 lg:p-6 flex flex-col flex-1 overflow-auto min-h-0 gap-8">
-        <InventoryList crops={inventory} userId={session.user.id} />
+      <div className="p-4 lg:p-6 flex flex-col flex-1 overflow-auto min-h-0">
+        <BuyerOrderHistory />
       </div>
     </main>
   );
 };
 
-export default BuyerPage;
+export default BuyerOrderHistoryPage;
