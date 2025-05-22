@@ -1,5 +1,5 @@
 import { ChatListPage } from "@/components/chat/ChatListPage";
 
 export default function FarmerChatListPage() {
-  return <ChatListPage currentRole="farmer" otherRoles={["admin"]} />;
+  return <ChatListPage currentRole="admin" otherRoles={["buyer", "farmer"]} />;
 }

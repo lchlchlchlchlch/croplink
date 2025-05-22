@@ -4,10 +4,10 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { getMessages, getOrCreatePrivateChatRoom } from "@/actions/chat";
-import { ChatInterface } from "@/app/farmer/components/chat/ChatInterface";
+import { ChatInterface } from "@/components/chat/ChatInterface";
 import { db } from "@/db";
 import * as schema from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 
 async function getAuthenticatedUser() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -15,35 +15,43 @@ async function getAuthenticatedUser() {
   return { id: (session.user as any).id as string };
 }
 
-interface AdminChatPageProps {
-  params: { adminId: string };
-}
-
-export default async function AdminChatPage({
+export async function RoleBasedChatPage({
   params,
+  currentRole,
+  otherRoles,
 }: {
-  params: Promise<{ adminId: string }>;
+  params: Promise<{ userId: string }>;
+  currentRole: string;
+  otherRoles: string[];
 }) {
-  const { adminId } = await params;
+  const { userId } = await params;
   const currentUser = await getAuthenticatedUser();
+
   const [userRecord] = await db
     .select({ role: schema.user.role })
     .from(schema.user)
     .where(eq(schema.user.id, currentUser.id));
   if (!userRecord) redirect("/?error=unauthenticated");
-  if (userRecord.role !== "farmer") {
+  if (userRecord.role !== currentRole) {
     redirect("/");
   }
 
-  const admins = await db
-    .select({ id: schema.user.id, name: schema.user.name, image: schema.user.image })
+  const users = await db
+    .select({
+      id: schema.user.id,
+      name: schema.user.name,
+      image: schema.user.image,
+    })
     .from(schema.user)
-    .where(eq(schema.user.role, "admin"));
+    .where(inArray(schema.user.role, otherRoles));
 
-  const chatRoom = await getOrCreatePrivateChatRoom(
-    currentUser.id,
-    adminId
-  );
+  const otherUser = await db
+    .select({ name: schema.user.name })
+    .from(schema.user)
+    .where(eq(schema.user.id, userId))
+    .then((res) => res[0]);
+
+  const chatRoom = await getOrCreatePrivateChatRoom(currentUser.id, userId);
   const initialMessages = await getMessages(chatRoom.id);
 
   return (
@@ -51,13 +59,17 @@ export default async function AdminChatPage({
       <header className="flex h-12 items-center border-b px-4">
         <SidebarTrigger />
         <Separator orientation="vertical" className="mx-2 h-6" />
-        <h1 className="text-lg font-medium">Chat with Admin</h1>
+        <h1 className="text-lg font-medium">
+          Chat with {otherUser?.name ?? "User"}
+        </h1>
       </header>
       <ChatInterface
         initialMessages={initialMessages}
         chatRoomId={chatRoom.id}
         currentUserId={currentUser.id}
-        allUsersMap={new Map(admins.map((a) => [a.id, { name: a.name, image: a.image }]))}
+        allUsersMap={
+          new Map(users.map((a) => [a.id, { name: a.name, image: a.image }]))
+        }
       />
     </main>
   );
