@@ -9,64 +9,159 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CheckIcon, ClockIcon } from "lucide-react";
+import { CheckIcon, ArrowUpDownIcon } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { OrderWithCropAndUser, approveOrder } from "@/actions/admin-orders";
+import { approveOrder } from "@/actions/approve-order";
+import { order as OrderType } from "@/db/schema";
 
-export function OrdersTable({ orders }: { orders: OrderWithCropAndUser[] }) {
+interface OrdersTableProps {
+  orders: (typeof OrderType)["$inferSelect"] &
+    {
+      user: { name: string };
+      crop: { name: string; image: string | null };
+    }[];
+}
+
+type SortField = "buyer" | "crop" | "date" | "amount" | "status";
+type SortDirection = "asc" | "desc";
+
+export function OrdersTable({ orders }: OrdersTableProps) {
   const [approving, setApproving] = useState<string | null>(null);
+  const [sortField, setSortField] = useState<SortField>("buyer");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
   const handleApprove = async (orderId: string) => {
     setApproving(orderId);
     try {
       await approveOrder({ orderId });
       toast.success("Order approved.");
-    } catch (err: any) {
-      toast.error(err.message ?? "Failed to approve order.");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "Failed to approve order.";
+      toast.error(message);
     } finally {
       setApproving(null);
     }
   };
+
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
+
+  const sortedOrders = [...orders].sort((a, b) => {
+    const multiplier = sortDirection === "asc" ? 1 : -1;
+    switch (sortField) {
+      case "buyer":
+        return multiplier * a.user.name.localeCompare(b.user.name);
+      case "crop":
+        return multiplier * a.crop.name.localeCompare(b.crop.name);
+      case "date":
+        return (
+          multiplier *
+          (new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+        );
+      case "amount":
+        return multiplier * (a.amount - b.amount);
+      case "status":
+        return multiplier * (Number(a.approved) - Number(b.approved));
+      default:
+        return 0;
+    }
+  });
 
   return (
     <div className="rounded-xl border">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Buyer</TableHead>
-            <TableHead>Crop</TableHead>
-            <TableHead>Amount</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>Status</TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                onClick={() => handleSort("buyer")}
+                className="flex items-center font-semibold hover:bg-transparent p-0"
+              >
+                Buyer
+                <ArrowUpDownIcon className="ml-1 h-4 w-4" />
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                onClick={() => handleSort("crop")}
+                className="flex items-center font-semibold hover:bg-transparent p-0"
+              >
+                Crop
+                <ArrowUpDownIcon className="ml-1 h-4 w-4" />
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                onClick={() => handleSort("amount")}
+                className="flex items-center font-semibold hover:bg-transparent p-0"
+              >
+                Amount
+                <ArrowUpDownIcon className="ml-1 h-4 w-4" />
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                onClick={() => handleSort("date")}
+                className="flex items-center font-semibold hover:bg-transparent p-0"
+              >
+                Date
+                <ArrowUpDownIcon className="ml-1 h-4 w-4" />
+              </Button>
+            </TableHead>
+            <TableHead>
+              <Button
+                variant="ghost"
+                onClick={() => handleSort("status")}
+                className="flex items-center font-semibold hover:bg-transparent p-0"
+              >
+                Status
+                <ArrowUpDownIcon className="ml-1 h-4 w-4" />
+              </Button>
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {orders.map((order) => (
+          {sortedOrders.map((order) => (
             <TableRow key={order.id}>
-              <TableCell>{order.user.name}</TableCell>
-              <TableCell className="flex items-center gap-2">
-                {order.crop.image && (
-                  <Image
-                    src={order.crop.image}
-                    alt={order.crop.name}
-                    width={40}
-                    height={40}
-                    className="rounded-md object-cover border"
-                  />
-                )}
-                {order.crop.name}
+              <TableCell className="p-4 font-medium">
+                {order.user.name}
               </TableCell>
-              <TableCell>{order.amount} lbs</TableCell>
-              <TableCell>
-                {format(new Date(order.createdAt), "PPP p")}
+              <TableCell className="p-4">
+                <div className="flex items-center gap-2">
+                  {order.crop.image && (
+                    <Image
+                      src={order.crop.image}
+                      alt={order.crop.name}
+                      width={40}
+                      height={40}
+                      className="w-12 border border-primary object-cover aspect-square rounded-md"
+                    />
+                  )}
+                  <span>{order.crop.name}</span>
+                </div>
               </TableCell>
-              <TableCell>
+              <TableCell className="p-4">{order.amount} lbs</TableCell>
+              <TableCell className="p-4">
+                {format(new Date(order.createdAt), "MMM d, yyyy")}
+              </TableCell>
+              <TableCell className="p-4">
                 {order.approved ? (
-                  <div className="flex items-center gap-2 text-green-600">
-                    Approved <CheckIcon size={16} />
+                  <div className="flex items-center gap-2 text-primary">
+                    Approved <CheckIcon size={14} />
                   </div>
                 ) : (
                   <Button
@@ -74,7 +169,7 @@ export function OrdersTable({ orders }: { orders: OrderWithCropAndUser[] }) {
                     onClick={() => handleApprove(order.id)}
                     disabled={approving === order.id}
                   >
-                    {approving === order.id ? "Approving..." : "Approve"}
+                    Approve <CheckIcon className="ml-1 h-4 w-4" />
                   </Button>
                 )}
               </TableCell>

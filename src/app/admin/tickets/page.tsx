@@ -9,6 +9,7 @@ import { revalidatePath } from "next/cache";
 import { Button } from "@/components/ui/button";
 import { RefreshCwIcon } from "lucide-react";
 import { RequestsTable } from "./_components/requests-table";
+import { OrdersTable } from "./_components/orders-table";
 
 const AdminPage = async () => {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -19,16 +20,25 @@ const AdminPage = async () => {
   if (session.user.role !== "admin") {
     throw redirect("/");
   }
-  const requests = await db.query.request.findMany({
-    with: {
-      user: true,
-      requestItems: {
-        with: {
-          crop: true,
+
+  const [requests, orders] = await Promise.all([
+    db.query.request.findMany({
+      with: {
+        user: true,
+        requestItems: {
+          with: {
+            crop: true,
+          },
         },
       },
-    },
-  });
+    }),
+    db.query.order.findMany({
+      with: {
+        user: true,
+        crop: true,
+      },
+    }),
+  ]);
 
   const refresh = async () => {
     "use server";
@@ -73,7 +83,9 @@ const AdminPage = async () => {
           <TabsContent value="requests" className="mt-6">
             <RequestsTable requests={requests} />
           </TabsContent>
-          <TabsContent value="suppliers" className="mt-6"></TabsContent>
+          <TabsContent value="orders" className="mt-6">
+            <OrdersTable orders={orders} />
+          </TabsContent>
         </Tabs>
       </div>
     </main>
