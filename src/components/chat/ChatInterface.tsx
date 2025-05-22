@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { useActionState } from "react";
-import { useFormStatus } from "react-dom";
 import { sendMessageAction, type MessageWithSender } from "@/actions/chat";
 import { supabase } from "@/lib/supabase/client";
-import type {
-  RealtimePostgresChangesPayload,
-} from "@supabase/supabase-js";
+import { useActionState, useEffect, useRef, useState } from "react";
+import { useFormStatus } from "react-dom";
+import { Button } from "../ui/button";
+import { ArrowLeftIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface ChatInterfaceProps {
   initialMessages: MessageWithSender[];
@@ -22,7 +21,7 @@ const SendButton = () => {
     <button
       type="submit"
       disabled={pending}
-      className="inline-flex items-center justify-center whitespace-nowrap rounded-md bg-primary p-4 text-sm font-medium text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+      className="h-12 inline-flex items-center justify-center whitespace-nowrap rounded-md bg-primary p-4 text-sm font-medium text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
     >
       {pending ? "Sending..." : "Send"}
     </button>
@@ -35,6 +34,7 @@ export function ChatInterface({
   currentUserId,
   allUsersMap,
 }: ChatInterfaceProps) {
+  const router = useRouter();
   const [messages, setMessages] =
     useState<MessageWithSender[]>(initialMessages);
   const [newMessageInput, setNewMessageInput] = useState("");
@@ -61,18 +61,11 @@ export function ChatInterface({
     }
   }, [sendMessageState]);
 
-    useEffect(() => {
-      console.log("✅ ChatInterface mounted");
-  
-      return () => {
-        console.log("🗑️ ChatInterface unmounted");
-      };
-    }, []);
   useEffect(() => {
     console.log("🔁 ChatInterface updated");
     if (!chatRoomId) return;
     console.log("Subscribing to chat room:", chatRoomId);
-    
+
     const channel = supabase
       .channel(`chat-room-${chatRoomId}`)
       .on(
@@ -83,7 +76,7 @@ export function ChatInterface({
           table: "chat_message",
           filter: `chat_room_id=eq.${chatRoomId}`,
         },
-        (payload: RealtimePostgresChangesPayload<any>) => {
+        (payload) => {
           const newMsg = payload.new;
 
           if (newMsg.chat_room_id !== chatRoomId) return;
@@ -101,7 +94,7 @@ export function ChatInterface({
             if (prev.find((m) => m.id === formattedMsg.id)) return prev;
             return [...prev, formattedMsg];
           });
-        }
+        },
       )
       .subscribe((status, err) => {
         if (status === "SUBSCRIBED") {
@@ -114,7 +107,7 @@ export function ChatInterface({
     return () => {
       supabase.removeChannel(channel).catch(console.error);
     };
-  }, [chatRoomId]);
+  }, [chatRoomId, allUsersMap]);
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
@@ -122,12 +115,12 @@ export function ChatInterface({
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={`flex items-end gap-2 ${
+            className={`flex flex-col items-end gap-1 ${
               msg.senderId === currentUserId ? "justify-end" : "justify-start"
             }`}
           >
             <div
-              className={`max-w-[70%] rounded-lg p-3 text-sm break-words ${
+              className={`max-w-[70%] leading-normal rounded-lg p-3 text-sm break-words ${
                 msg.senderId === currentUserId
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted"
@@ -139,13 +132,14 @@ export function ChatInterface({
                 </p>
               )}
               <p>{msg.content}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-right">
-                {new Date(msg.createdAt).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </p>
             </div>
+            <p className="text-sm font-medium text-gray-500 mt-1 text-right">
+              Sent at{" "}
+              {new Date(msg.createdAt).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </p>
           </div>
         ))}
         <div ref={messagesEndRef} />
@@ -154,8 +148,17 @@ export function ChatInterface({
         <form
           action={formAction}
           ref={formRef}
-          className="flex items-center gap-2"
+          className="flex gap-2 items-stretch"
         >
+          <Button
+            onClick={() => router.back()}
+            type="button"
+            className="h-12"
+            variant={"secondary"}
+          >
+            <ArrowLeftIcon />
+            Back
+          </Button>
           <input type="hidden" name="chatRoomId" value={chatRoomId} />
           <input type="hidden" name="userId" value={currentUserId} />
           <input
@@ -164,7 +167,7 @@ export function ChatInterface({
             value={newMessageInput}
             onChange={(e) => setNewMessageInput(e.target.value)}
             placeholder="Type your message..."
-            className="flex-1 rounded-lg border border-input bg-background p-4 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex-1 rounded-lg border border-input bg-background p-4 h-12 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             autoComplete="off"
           />
           <SendButton />

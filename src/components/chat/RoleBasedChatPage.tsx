@@ -1,18 +1,18 @@
-import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { redirect } from "next/navigation";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
 import { getMessages, getOrCreatePrivateChatRoom } from "@/actions/chat";
 import { ChatInterface } from "@/components/chat/ChatInterface";
+import { Separator } from "@/components/ui/separator";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { db } from "@/db";
 import * as schema from "@/db/schema";
+import { auth } from "@/lib/auth";
 import { eq, inArray } from "drizzle-orm";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 async function getAuthenticatedUser() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) redirect("/?error=unauthenticated&callbackUrl=/chat");
-  return { id: (session.user as any).id as string };
+  return { id: session.user.id as string };
 }
 
 export async function RoleBasedChatPage({
@@ -55,13 +55,18 @@ export async function RoleBasedChatPage({
   const initialMessages = await getMessages(chatRoom.id);
 
   return (
-    <main className="flex flex-col h-full">
-      <header className="flex h-12 items-center border-b px-4">
-        <SidebarTrigger />
-        <Separator orientation="vertical" className="mx-2 h-6" />
-        <h1 className="text-lg font-medium">
-          Chat with {otherUser?.name ?? "User"}
-        </h1>
+    <main className="flex flex-col h-[calc(100vh-1rem)]">
+      <header className="group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 flex h-12 shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear">
+        <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
+          <SidebarTrigger className="-ml-1" />
+          <Separator
+            orientation="vertical"
+            className="mx-2 data-[orientation=vertical]:h-4"
+          />
+          <h1 className="text-base font-medium">
+            Chat with {otherUser?.name ?? "User"}
+          </h1>
+        </div>
       </header>
       <ChatInterface
         initialMessages={initialMessages}
